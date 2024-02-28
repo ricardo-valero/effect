@@ -124,7 +124,7 @@ export const size = (self: Span.Span): number => {
 export const toAnsiDoc = (self: Span.Span): Doc.AnsiDoc => {
   switch (self._tag) {
     case "Highlight": {
-      return Doc.annotate(toAnsiDoc(self.value), Ansi.color(self.color))
+      return Doc.annotate(toAnsiDoc(self.value), Ansi.fgColor(self.color))
     }
     case "Sequence": {
       return Doc.cat(toAnsiDoc(self.left), toAnsiDoc(self.right))
