@@ -13,7 +13,7 @@ const complex = Doc.hsep([
       Doc.text("blue+u"),
       Doc.text("bold").pipe(Doc.annotate(Ansi.bold)),
       Doc.text("blue+u")
-    ]).pipe(Doc.annotate(Ansi.combine(Ansi.color(Color.blue), Ansi.underlined))),
+    ]).pipe(Doc.annotate(Ansi.combine(Ansi.fgColor(Color.blue), Ansi.underlined))),
     Doc.text("red")
   ]))
 ]).pipe(Doc.annotate(Ansi.red))
@@ -296,7 +296,7 @@ describe("Terminal", () => {
     })
 
     it("should alter existing annotations", () => {
-      const doc = Doc.alterAnnotations(complex, () => [Ansi.bold, Ansi.color(Color.green)])
+      const doc = Doc.alterAnnotations(complex, () => [Ansi.bold, Ansi.fgColor(Color.green)])
       expect(render(doc)).toBe(String.stripMargin(
         `|\u001b[0;1m\u001b[0;32;1mred \u001b[0;32;1m\u001b[0;32;1mblue+u \u001b[0;32;1m\u001b[0;32;1mbold\u001b[0;1m\u001b[0;32m blue+u\u001b[0;1m\u001b[0;32m
          |    red\u001b[0;1m\u001b[0m`

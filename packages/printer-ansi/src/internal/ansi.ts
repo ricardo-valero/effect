@@ -360,5 +360,5 @@ const stringifyInternal = (self: AnsiImpl): string => {
     ])
   )
   const commandSequence = ReadonlyArray.join(self.commands, "")
-  return `${displaySequence}${commandSequence}`
+  return `${CSI}${displaySequence}${commandSequence}`
 }

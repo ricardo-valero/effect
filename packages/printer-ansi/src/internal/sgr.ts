@@ -13,6 +13,7 @@
  * exhaustive but instead are meant to provide the most common and
  * well-supported SGR display attributes (with a few exceptions).
  */
+import { Match } from "effect"
 import type * as Color from "../Color.js"
 import * as color from "./color.js"
 
@@ -147,40 +148,23 @@ export const setUnderlined = (underlined: boolean): SGR => ({
 // -----------------------------------------------------------------------------
 
 /** @internal */
-export const toCode = (self: SGR): number => {
-  switch (self._tag) {
-    case "Reset": {
-      return 0
-    }
-    case "SetBold": {
-      return self.bold ? 1 : 22
-    }
-    case "SetColor": {
-      switch (self.layer) {
-        case "foreground": {
-          return self.vivid ? 90 + color.toCode(self.color) : 30 + color.toCode(self.color)
-        }
-        case "background": {
-          return self.vivid ? 100 + color.toCode(self.color) : 40 + color.toCode(self.color)
-        }
-      }
-    }
-    case "SetItalicized": {
-      return self.italicized ? 3 : 23
-    }
-    case "SetStrikethrough": {
-      return self.strikethrough ? 9 : 29
-    }
-    case "SetUnderlined": {
-      return self.underlined ? 4 : 24
-    }
-  }
-}
+export const toCode = (self: SGR): number =>
+  Match.value(self).pipe(
+    Match.tag("Reset", () => 0),
+    Match.tag("SetBold", (self) => self.bold ? 1 : 22),
+    Match.tag("SetItalicized", (self) => self.italicized ? 3 : 23),
+    Match.tag("SetUnderlined", (self) => self.underlined ? 4 : 24),
+    Match.tag("SetStrikethrough", (self) => self.strikethrough ? 9 : 29),
+    Match.tag("SetColor", (self) =>
+      Match.value(self.layer).pipe(
+        Match.when("foreground", () => self.vivid ? 90 + color.toCode(self.color) : 30 + color.toCode(self.color)),
+        Match.when("background", () => self.vivid ? 100 + color.toCode(self.color) : 40 + color.toCode(self.color)),
+        Match.exhaustive
+      )),
+    Match.exhaustive
+  )
+
+const paramsToCode = (sgrs: Iterable<SGR>): string => Array.from(sgrs).map(toCode).join(";")
 
 /** @internal */
-export const toEscapeSequence = (sgrs: Iterable<SGR>): string => csi("m", sgrs)
-
-const csi = (controlFunction: string, sgrs: Iterable<SGR>): string => {
-  const params = Array.from(sgrs).map((sgr) => `${toCode(sgr)}`).join(";")
-  return `\u001b[${params}${controlFunction}`
-}
+export const toEscapeSequence = (sgrs: Iterable<SGR>): string => paramsToCode(sgrs).concat("m")
