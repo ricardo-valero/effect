@@ -12,13 +12,13 @@ import * as InternalAnsi from "./internal/ansi.js"
  * @since 1.0.0
  * @category symbol
  */
-export const AnsiTypeId: unique symbol = InternalAnsi.AnsiTypeId as AnsiTypeId
+export const TypeId: unique symbol = InternalAnsi.TypeId as TypeId
 
 /**
  * @since 1.0.0
  * @category symbol
  */
-export type AnsiTypeId = typeof AnsiTypeId
+export type TypeId = typeof TypeId
 
 /**
  * @since 1.0.0
@@ -35,7 +35,7 @@ export declare namespace Ansi {
    * @category model
    */
   export interface Proto {
-    readonly [AnsiTypeId]: AnsiTypeId
+    readonly [TypeId]: TypeId
   }
 }
 
@@ -75,13 +75,13 @@ export const underlined: Ansi = InternalAnsi.underlined
  * @since 1.0.0
  * @category constructors
  */
-export const color: (color: Color) => Ansi = InternalAnsi.color
+export const fgColor: (color: Color) => Ansi = InternalAnsi.fgColor
 
 /**
  * @since 1.0.0
  * @category constructors
  */
-export const brightColor: (color: Color) => Ansi = InternalAnsi.brightColor
+export const fgBrightColor: (color: Color) => Ansi = InternalAnsi.fgBrightColor
 
 /**
  * @since 1.0.0
@@ -93,7 +93,7 @@ export const bgColor: (color: Color) => Ansi = InternalAnsi.bgColor
  * @since 1.0.0
  * @category constructors
  */
-export const bgColorBright: (color: Color) => Ansi = InternalAnsi.bgColorBright
+export const bgBrightColor: (color: Color) => Ansi = InternalAnsi.bgBrightColor
 
 /**
  * @since 1.0.0
