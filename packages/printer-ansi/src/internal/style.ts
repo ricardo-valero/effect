@@ -30,10 +30,14 @@ import * as color from "./color.js"
 export type Style =
   | Reset
   | Bold
+  | Faint
   | Italic
-  | Strikethrough
   | Underline
+  | Strikethrough
+  | Invert
   | SetColor
+// |  Foreground
+//  | Background
 
 /**
  * Resets all SGR attributes to their default values.
@@ -52,6 +56,26 @@ export interface Reset {
 export interface Bold {
   readonly _tag: "Bold"
   readonly bold: boolean
+}
+
+/**
+ * Controls whether the text displayed in the terminal is faint.
+ *
+ * @internal
+ */
+export interface Faint {
+  readonly _tag: "Faint"
+  readonly state: boolean
+}
+
+/**
+ * Controls whether the text displayed in the terminal is inverted.
+ *
+ * @internal
+ */
+export interface Invert {
+  readonly _tag: "Invert"
+  readonly state: boolean
 }
 
 /**
@@ -148,13 +172,15 @@ export const setUnderlined = (underlined: boolean): Style => ({
 // -----------------------------------------------------------------------------
 
 /** @internal */
-export const toCode = (self: Style): number =>
+const singleToCode = (self: Style): number =>
   Match.value(self).pipe(
     Match.tag("Reset", () => 0),
     Match.tag("Bold", (self) => self.bold ? 1 : 22),
+    Match.tag("Faint", (self) => self.state ? 2 : 22),
     Match.tag("Italic", (self) => self.italicized ? 3 : 23),
     Match.tag("Underline", (self) => self.underlined ? 4 : 24),
     Match.tag("Strikethrough", (self) => self.strikethrough ? 9 : 29),
+    Match.tag("Invert", (self) => self.state ? 7 : 27),
     Match.tag("SetColor", (self) =>
       Match.value(self.layer).pipe(
         Match.when("foreground", () => self.vivid ? 90 + color.toCode(self.color) : 30 + color.toCode(self.color)),
@@ -164,7 +190,7 @@ export const toCode = (self: Style): number =>
     Match.exhaustive
   )
 
-const paramsToCode = (sgrs: Iterable<Style>): string => Array.from(sgrs).map(toCode).join(";")
+const multiToCode = (sgrs: Iterable<Style>): string => Array.from(sgrs).map(singleToCode).join(";")
 
 /** @internal */
-export const toEscapeSequence = (sgrs: Iterable<Style>): string => paramsToCode(sgrs).concat("m")
+export const toCode = (sgrs: Iterable<Style>): string => multiToCode(sgrs).concat("m")

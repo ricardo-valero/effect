@@ -348,7 +348,7 @@ export const combine = dual<
 const combineInternal = (self: AnsiImpl, that: AnsiImpl): Ansi.Ansi => AnsiSemigroup.combine(self, that)
 
 const stringifyInternal = (self: AnsiImpl): string => {
-  const displaySequence = Style.toEscapeSequence(
+  const styles = Style.toCode(
     ReadonlyArray.getSomes([
       Option.some(Style.reset),
       self.foreground,
@@ -360,5 +360,5 @@ const stringifyInternal = (self: AnsiImpl): string => {
     ])
   )
   const commandSequence = ReadonlyArray.join(self.commands, "")
-  return `${CSI}${displaySequence}${commandSequence}`
+  return `${CSI}${styles}${commandSequence}`
 }
