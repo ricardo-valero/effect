@@ -40,7 +40,7 @@ const unsafePeek = (stack: List.List<Ansi.Ansi>): Ansi.Ansi => {
   if (List.isNil(stack)) {
     throw new Error(
       "BUG: AnsiRender.unsafePeek - peeked at an empty stack" +
-        " - please report an issue at https://github.com/Effect-TS/printer/issues"
+        " - please report an issue at https://github.com/Effect-TS/effect"
     )
   }
   return stack.head
@@ -52,7 +52,7 @@ const unsafePop = (
   if (List.isNil(stack)) {
     throw new Error(
       "BUG: AnsiRender.unsafePop - popped from an empty stack" +
-        " - please report an issue at https://github.com/Effect-TS/printer/issues"
+        " - please report an issue at https://github.com/Effect-TS/effect"
     )
   }
   return [stack.head, stack.tail]
@@ -66,7 +66,7 @@ const renderSafe = (
     case "FailedStream": {
       return Effect.dieMessage(
         "BUG: AnsiRender.renderSafe - attempted to render a failed doc stream" +
-          " - please report an issue at https://github.com/Effect-TS/printer/issues"
+          " - please report an issue at https://github.com/Effect-TS/effect"
       )
     }
     case "EmptyStream": {
