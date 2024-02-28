@@ -13,7 +13,7 @@ const complex = Doc.hsep([
       Doc.text("blue+u"),
       Doc.text("bold").pipe(Doc.annotate(Ansi.bold)),
       Doc.text("blue+u")
-    ]).pipe(Doc.annotate(Ansi.combine(Ansi.fgColor(Color.blue), Ansi.underlined))),
+    ]).pipe(Doc.annotate(Ansi.combine(Ansi.fgColor(Color.blue), Ansi.underline))),
     Doc.text("red")
   ]))
 ]).pipe(Doc.annotate(Ansi.red))
@@ -151,7 +151,7 @@ describe("Terminal", () => {
     })
 
     it("italicized", () => {
-      expect(render(Doc.annotate(simple, Ansi.italicized))).toBe(
+      expect(render(Doc.annotate(simple, Ansi.italic))).toBe(
         "\u001b[0;3mfoo\u001b[0m"
       )
     })
@@ -163,7 +163,7 @@ describe("Terminal", () => {
     })
 
     it("underlined", () => {
-      expect(render(Doc.annotate(simple, Ansi.underlined))).toBe(
+      expect(render(Doc.annotate(simple, Ansi.underline))).toBe(
         "\u001b[0;4mfoo\u001b[0m"
       )
     })

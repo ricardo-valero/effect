@@ -56,7 +56,7 @@ const renderClearScreen = (
 
 const renderInput = (nextState: State, submitted: boolean): Doc.AnsiDoc => {
   const annotation = Option.match(nextState.error, {
-    onNone: () => Ansi.combine(Ansi.underlined, Ansi.cyanBright),
+    onNone: () => Ansi.combine(Ansi.underline, Ansi.cyanBright),
     onSome: () => Ansi.red
   })
   const value = nextState.value === "" ? Doc.empty : Doc.text(`${nextState.value}`)
@@ -71,7 +71,7 @@ const renderError = (nextState: State, pointer: Doc.AnsiDoc): Doc.AnsiDoc =>
         onEmpty: () => Doc.empty,
         onNonEmpty: (errorLines) => {
           const annotateLine = (line: string): Doc.AnsiDoc =>
-            Doc.annotate(Doc.text(line), Ansi.combine(Ansi.italicized, Ansi.red))
+            Doc.annotate(Doc.text(line), Ansi.combine(Ansi.italic, Ansi.red))
           const prefix = Doc.cat(Doc.annotate(pointer, Ansi.red), Doc.space)
           const lines = ReadonlyArray.map(errorLines, (str) => annotateLine(str))
           return pipe(

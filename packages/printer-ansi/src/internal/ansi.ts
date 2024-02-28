@@ -6,7 +6,7 @@ import * as ReadonlyArray from "effect/ReadonlyArray"
 import type * as Ansi from "../Ansi.js"
 import type * as Color from "../Color.js"
 import * as InternalColor from "./color.js"
-import * as SGR from "./sgr.js"
+import * as Style from "./style.js"
 
 const AnsiSymbolKey = "@effect/printer-ansi/Ansi"
 
@@ -15,23 +15,23 @@ export const TypeId: Ansi.TypeId = Symbol.for(AnsiSymbolKey) as Ansi.TypeId
 
 interface AnsiImpl extends Ansi.Ansi {
   readonly commands: ReadonlyArray<string>
-  readonly foreground: Option.Option<SGR.SGR>
-  readonly background: Option.Option<SGR.SGR>
-  readonly bold: Option.Option<SGR.SGR>
-  readonly strikethrough: Option.Option<SGR.SGR>
-  readonly italicized: Option.Option<SGR.SGR>
-  readonly underlined: Option.Option<SGR.SGR>
+  readonly foreground: Option.Option<Style.Style>
+  readonly background: Option.Option<Style.Style>
+  readonly bold: Option.Option<Style.Style>
+  readonly strikethrough: Option.Option<Style.Style>
+  readonly italic: Option.Option<Style.Style>
+  readonly underline: Option.Option<Style.Style>
 }
 
 const make = (
   params: Partial<{
     readonly commands: ReadonlyArray<string>
-    readonly foreground: Option.Option<SGR.SGR>
-    readonly background: Option.Option<SGR.SGR>
-    readonly bold: Option.Option<SGR.SGR>
-    readonly strikethrough: Option.Option<SGR.SGR>
-    readonly italicized: Option.Option<SGR.SGR>
-    readonly underlined: Option.Option<SGR.SGR>
+    readonly foreground: Option.Option<Style.Style>
+    readonly background: Option.Option<Style.Style>
+    readonly bold: Option.Option<Style.Style>
+    readonly strikethrough: Option.Option<Style.Style>
+    readonly italic: Option.Option<Style.Style>
+    readonly underline: Option.Option<Style.Style>
   }>
 ): Ansi.Ansi => ({
   ...AnsiMonoid.empty,
@@ -44,7 +44,7 @@ const make = (
 
 const typeIdSemigroup = Semigroup.first<Ansi.TypeId>()
 
-const getFirstSomeSemigroup: Semigroup.Semigroup<Option.Option<SGR.SGR>> = Semigroup.make(
+const getFirstSomeSemigroup: Semigroup.Semigroup<Option.Option<Style.Style>> = Semigroup.make(
   (self, that) => Option.isSome(self) ? self : that
 )
 
@@ -54,9 +54,9 @@ const AnsiSemigroup: Semigroup.Semigroup<AnsiImpl> = Semigroup.struct({
   foreground: getFirstSomeSemigroup,
   background: getFirstSomeSemigroup,
   bold: getFirstSomeSemigroup,
-  italicized: getFirstSomeSemigroup,
+  italic: getFirstSomeSemigroup,
   strikethrough: getFirstSomeSemigroup,
-  underlined: getFirstSomeSemigroup
+  underline: getFirstSomeSemigroup
 })
 
 const typeIdMonoid = Monoid.fromSemigroup(typeIdSemigroup, TypeId)
@@ -69,9 +69,9 @@ const AnsiMonoid: Monoid.Monoid<AnsiImpl> = Monoid.struct({
   foreground: monoidOrElse,
   background: monoidOrElse,
   bold: monoidOrElse,
-  italicized: monoidOrElse,
+  italic: monoidOrElse,
   strikethrough: monoidOrElse,
-  underlined: monoidOrElse
+  underline: monoidOrElse
 })
 
 /** @internal */
@@ -87,16 +87,16 @@ const CSI = `${ESC}[`
 // -----------------------------------------------------------------------------
 
 /** @internal */
-export const bold: Ansi.Ansi = make({ bold: Option.some(SGR.setBold(true)) })
+export const bold: Ansi.Ansi = make({ bold: Option.some(Style.setBold(true)) })
 
 /** @internal */
-export const italicized: Ansi.Ansi = make({ italicized: Option.some(SGR.setItalicized(true)) })
+export const italic: Ansi.Ansi = make({ italic: Option.some(Style.setItalicized(true)) })
 
 /** @internal */
-export const strikethrough: Ansi.Ansi = make({ strikethrough: Option.some(SGR.setStrikethrough(true)) })
+export const strikethrough: Ansi.Ansi = make({ strikethrough: Option.some(Style.setStrikethrough(true)) })
 
 /** @internal */
-export const underlined: Ansi.Ansi = make({ underlined: Option.some(SGR.setUnderlined(true)) })
+export const underline: Ansi.Ansi = make({ underline: Option.some(Style.setUnderlined(true)) })
 
 // -----------------------------------------------------------------------------
 // Colors
@@ -104,19 +104,19 @@ export const underlined: Ansi.Ansi = make({ underlined: Option.some(SGR.setUnder
 
 /** @internal */
 export const fgBrightColor = (color: Color.Color): Ansi.Ansi =>
-  make({ foreground: Option.some(SGR.setColor(color, true, "foreground")) })
+  make({ foreground: Option.some(Style.setColor(color, true, "foreground")) })
 
 /** @internal */
 export const fgColor = (color: Color.Color): Ansi.Ansi =>
-  make({ foreground: Option.some(SGR.setColor(color, false, "foreground")) })
+  make({ foreground: Option.some(Style.setColor(color, false, "foreground")) })
 
 /** @internal */
 export const bgBrightColor = (color: Color.Color): Ansi.Ansi =>
-  make({ background: Option.some(SGR.setColor(color, true, "background")) })
+  make({ background: Option.some(Style.setColor(color, true, "background")) })
 
 /** @internal */
 export const bgColor = (color: Color.Color): Ansi.Ansi =>
-  make({ background: Option.some(SGR.setColor(color, false, "background")) })
+  make({ background: Option.some(Style.setColor(color, false, "background")) })
 
 /** @internal */
 export const black: Ansi.Ansi = fgColor(InternalColor.black)
@@ -348,15 +348,15 @@ export const combine = dual<
 const combineInternal = (self: AnsiImpl, that: AnsiImpl): Ansi.Ansi => AnsiSemigroup.combine(self, that)
 
 const stringifyInternal = (self: AnsiImpl): string => {
-  const displaySequence = SGR.toEscapeSequence(
+  const displaySequence = Style.toEscapeSequence(
     ReadonlyArray.getSomes([
-      Option.some(SGR.reset),
+      Option.some(Style.reset),
       self.foreground,
       self.background,
       self.bold,
-      self.italicized,
+      self.italic,
       self.strikethrough,
-      self.underlined
+      self.underline
     ])
   )
   const commandSequence = ReadonlyArray.join(self.commands, "")

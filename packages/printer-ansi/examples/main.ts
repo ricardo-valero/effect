@@ -8,7 +8,7 @@ const doc = Doc.hsep([
       Doc.text("blue+u"),
       Doc.text("bold").pipe(Doc.annotate(Ansi.bold)),
       Doc.text("blue+u")
-    ]).pipe(Doc.annotate(Ansi.combine(Ansi.blue, Ansi.underlined))),
+    ]).pipe(Doc.annotate(Ansi.combine(Ansi.blue, Ansi.underline))),
     Doc.text("red")
   ]))
 ]).pipe(Doc.annotate(Ansi.red))

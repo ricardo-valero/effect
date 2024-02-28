@@ -36,7 +36,7 @@ const renderToggle = (
   submitted: boolean = false
 ) => {
   const separator = pipe(Doc.char("/"), Doc.annotate(Ansi.blackBright))
-  const selectedAnnotation = Ansi.combine(Ansi.underlined, submitted ? Ansi.white : Ansi.cyanBright)
+  const selectedAnnotation = Ansi.combine(Ansi.underline, submitted ? Ansi.white : Ansi.cyanBright)
   const inactive = value
     ? Doc.text(options.inactive)
     : Doc.annotate(Doc.text(options.inactive), selectedAnnotation)

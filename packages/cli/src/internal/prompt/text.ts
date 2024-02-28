@@ -66,7 +66,7 @@ const renderInput = (
   submitted: boolean
 ): Doc.AnsiDoc => {
   const annotation = Option.match(nextState.error, {
-    onNone: () => submitted ? Ansi.white : Ansi.combine(Ansi.underlined, Ansi.cyanBright),
+    onNone: () => submitted ? Ansi.white : Ansi.combine(Ansi.underline, Ansi.cyanBright),
     onSome: () => Ansi.red
   })
   switch (options.type) {
@@ -92,7 +92,7 @@ const renderError = (nextState: State, pointer: Doc.AnsiDoc): Doc.AnsiDoc =>
           const annotateLine = (line: string): Doc.AnsiDoc =>
             pipe(
               Doc.text(line),
-              Doc.annotate(Ansi.combine(Ansi.italicized, Ansi.red))
+              Doc.annotate(Ansi.combine(Ansi.italic, Ansi.red))
             )
           const prefix = Doc.cat(Doc.annotate(pointer, Ansi.red), Doc.space)
           const lines = ReadonlyArray.map(errorLines, (str) => annotateLine(str))

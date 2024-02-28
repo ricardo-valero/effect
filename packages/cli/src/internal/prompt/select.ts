@@ -62,8 +62,8 @@ const renderChoiceTitle = <A>(
   const title = Doc.text(choice.title)
   if (isSelected) {
     return choice.disabled
-      ? Doc.annotate(title, Ansi.combine(Ansi.underlined, Ansi.blackBright))
-      : Doc.annotate(title, Ansi.combine(Ansi.underlined, Ansi.cyanBright))
+      ? Doc.annotate(title, Ansi.combine(Ansi.underline, Ansi.blackBright))
+      : Doc.annotate(title, Ansi.combine(Ansi.underline, Ansi.cyanBright))
   }
   return choice.disabled
     ? Doc.annotate(title, Ansi.combine(Ansi.strikethrough, Ansi.blackBright))

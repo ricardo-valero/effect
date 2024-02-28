@@ -53,7 +53,7 @@ export const bold: Ansi = InternalAnsi.bold
  * @since 1.0.0
  * @category constructors
  */
-export const italicized: Ansi = InternalAnsi.italicized
+export const italic: Ansi = InternalAnsi.italic
 
 /**
  * @since 1.0.0
@@ -65,7 +65,7 @@ export const strikethrough: Ansi = InternalAnsi.strikethrough
  * @since 1.0.0
  * @category constructors
  */
-export const underlined: Ansi = InternalAnsi.underlined
+export const underline: Ansi = InternalAnsi.underline
 
 // -----------------------------------------------------------------------------
 // Color Constructors

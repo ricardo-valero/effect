@@ -50,7 +50,7 @@ const renderError = (nextState: State, pointer: Doc.AnsiDoc): Doc.AnsiDoc =>
       const errorLines = error.split(/\r?\n/)
       if (ReadonlyArray.isNonEmptyReadonlyArray(errorLines)) {
         const annotateLine = (line: string): Doc.AnsiDoc =>
-          Doc.annotate(Doc.text(line), Ansi.combine(Ansi.italicized, Ansi.red))
+          Doc.annotate(Doc.text(line), Ansi.combine(Ansi.italic, Ansi.red))
         const prefix = Doc.cat(Doc.annotate(pointer, Ansi.red), Doc.space)
         const lines = ReadonlyArray.map(errorLines, (str) => annotateLine(str))
         return pipe(
@@ -72,7 +72,7 @@ const renderParts = (nextState: State, submitted: boolean = false) =>
     (doc, part, currentIndex) => {
       const partDoc = Doc.text(part.toString())
       if (currentIndex === nextState.cursor && !submitted) {
-        const annotation = Ansi.combine(Ansi.underlined, Ansi.cyanBright)
+        const annotation = Ansi.combine(Ansi.underline, Ansi.cyanBright)
         return Doc.cat(doc, Doc.annotate(partDoc, annotation))
       }
       return Doc.cat(doc, partDoc)

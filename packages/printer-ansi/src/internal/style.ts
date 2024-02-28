@@ -27,13 +27,13 @@ import * as color from "./color.js"
  *
  * @internal
  */
-export type SGR =
+export type Style =
   | Reset
-  | SetBold
+  | Bold
+  | Italic
+  | Strikethrough
+  | Underline
   | SetColor
-  | SetItalicized
-  | SetStrikethrough
-  | SetUnderlined
 
 /**
  * Resets all SGR attributes to their default values.
@@ -49,8 +49,8 @@ export interface Reset {
  *
  * @internal
  */
-export interface SetBold {
-  readonly _tag: "SetBold"
+export interface Bold {
+  readonly _tag: "Bold"
   readonly bold: boolean
 }
 
@@ -63,7 +63,7 @@ export interface SetColor {
   readonly _tag: "SetColor"
   readonly color: Color.Color
   readonly vivid: boolean
-  readonly layer: SGR.Layer
+  readonly layer: Style.Layer
 }
 
 /**
@@ -73,8 +73,8 @@ export interface SetColor {
  *
  * @internal
  */
-export interface SetItalicized {
-  readonly _tag: "SetItalicized"
+export interface Italic {
+  readonly _tag: "Italic"
   readonly italicized: boolean
 }
 
@@ -83,8 +83,8 @@ export interface SetItalicized {
  *
  * @internal
  */
-export interface SetStrikethrough {
-  readonly _tag: "SetStrikethrough"
+export interface Strikethrough {
+  readonly _tag: "Strikethrough"
   readonly strikethrough: boolean
 }
 
@@ -93,13 +93,13 @@ export interface SetStrikethrough {
  *
  * @internal
  */
-export interface SetUnderlined {
-  readonly _tag: "SetUnderlined"
+export interface Underline {
+  readonly _tag: "Underline"
   readonly underlined: boolean
 }
 
 /** @internal */
-export declare namespace SGR {
+export declare namespace Style {
   /** @internal */
   export type Layer = "foreground" | "background"
 }
@@ -109,16 +109,16 @@ export declare namespace SGR {
 // -----------------------------------------------------------------------------
 
 /** @internal */
-export const reset: SGR = { _tag: "Reset" }
+export const reset: Style = { _tag: "Reset" }
 
 /** @internal */
-export const setBold = (bold: boolean): SGR => ({
-  _tag: "SetBold",
+export const setBold = (bold: boolean): Style => ({
+  _tag: "Bold",
   bold
 })
 
 /** @internal */
-export const setColor = (color: Color.Color, vivid: boolean, layer: SGR.Layer): SGR => ({
+export const setColor = (color: Color.Color, vivid: boolean, layer: Style.Layer): Style => ({
   _tag: "SetColor",
   color,
   vivid,
@@ -126,20 +126,20 @@ export const setColor = (color: Color.Color, vivid: boolean, layer: SGR.Layer): 
 })
 
 /** @internal */
-export const setItalicized = (italicized: boolean): SGR => ({
-  _tag: "SetItalicized",
+export const setItalicized = (italicized: boolean): Style => ({
+  _tag: "Italic",
   italicized
 })
 
 /** @internal */
-export const setStrikethrough = (strikethrough: boolean): SGR => ({
-  _tag: "SetStrikethrough",
+export const setStrikethrough = (strikethrough: boolean): Style => ({
+  _tag: "Strikethrough",
   strikethrough
 })
 
 /** @internal */
-export const setUnderlined = (underlined: boolean): SGR => ({
-  _tag: "SetUnderlined",
+export const setUnderlined = (underlined: boolean): Style => ({
+  _tag: "Underline",
   underlined
 })
 
@@ -148,13 +148,13 @@ export const setUnderlined = (underlined: boolean): SGR => ({
 // -----------------------------------------------------------------------------
 
 /** @internal */
-export const toCode = (self: SGR): number =>
+export const toCode = (self: Style): number =>
   Match.value(self).pipe(
     Match.tag("Reset", () => 0),
-    Match.tag("SetBold", (self) => self.bold ? 1 : 22),
-    Match.tag("SetItalicized", (self) => self.italicized ? 3 : 23),
-    Match.tag("SetUnderlined", (self) => self.underlined ? 4 : 24),
-    Match.tag("SetStrikethrough", (self) => self.strikethrough ? 9 : 29),
+    Match.tag("Bold", (self) => self.bold ? 1 : 22),
+    Match.tag("Italic", (self) => self.italicized ? 3 : 23),
+    Match.tag("Underline", (self) => self.underlined ? 4 : 24),
+    Match.tag("Strikethrough", (self) => self.strikethrough ? 9 : 29),
     Match.tag("SetColor", (self) =>
       Match.value(self.layer).pipe(
         Match.when("foreground", () => self.vivid ? 90 + color.toCode(self.color) : 30 + color.toCode(self.color)),
@@ -164,7 +164,7 @@ export const toCode = (self: SGR): number =>
     Match.exhaustive
   )
 
-const paramsToCode = (sgrs: Iterable<SGR>): string => Array.from(sgrs).map(toCode).join(";")
+const paramsToCode = (sgrs: Iterable<Style>): string => Array.from(sgrs).map(toCode).join(";")
 
 /** @internal */
-export const toEscapeSequence = (sgrs: Iterable<SGR>): string => paramsToCode(sgrs).concat("m")
+export const toEscapeSequence = (sgrs: Iterable<Style>): string => paramsToCode(sgrs).concat("m")

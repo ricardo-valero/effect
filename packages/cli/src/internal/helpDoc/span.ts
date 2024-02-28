@@ -136,7 +136,7 @@ export const toAnsiDoc = (self: Span.Span): Doc.AnsiDoc => {
       return Doc.text(self.value)
     }
     case "URI": {
-      return Doc.annotate(Doc.text(self.value), Ansi.underlined)
+      return Doc.annotate(Doc.text(self.value), Ansi.underline)
     }
     case "Weak": {
       return Doc.annotate(toAnsiDoc(self.value), Ansi.black)
