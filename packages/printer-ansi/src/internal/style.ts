@@ -17,9 +17,11 @@ import { Match } from "effect"
 import type { AnsiColor16 } from "../AnsiColor16.js"
 import type { AnsiColor256 } from "../AnsiColor256.js"
 import type * as Color from "../Color.js"
+import type { TrueColor } from "../TrueColor.js"
 import * as ansiColor16 from "./ansiColor16.js"
 import * as ansiColor256 from "./ansiColor256.js"
 import * as color from "./color.js"
+import * as trueColor from "./trueColor.js"
 
 // -----------------------------------------------------------------------------
 // Models
@@ -101,7 +103,7 @@ export interface SetColor {
  */
 export interface Foreground {
   readonly _tag: "Foreground"
-  readonly colorSpace: AnsiColor16 | AnsiColor256
+  readonly colorSpace: AnsiColor16 | AnsiColor256 | TrueColor
 }
 
 /**
@@ -111,7 +113,7 @@ export interface Foreground {
  */
 export interface Background {
   readonly _tag: "Background"
-  readonly colorSpace: AnsiColor16 | AnsiColor256
+  readonly colorSpace: AnsiColor16 | AnsiColor256 | TrueColor
 }
 
 /**
@@ -150,7 +152,6 @@ export interface Underline {
 export declare namespace Style {
   /** @internal */
   export type Layer = "foreground" | "background"
-  export type Colors = "AnsiColor16" | "AnsiColor256" | "TrueColor"
 }
 
 // -----------------------------------------------------------------------------
@@ -217,6 +218,7 @@ const singleToCode = (self: Style): number | Array<number> =>
         Match.tag("Standard", (self) => 30 + ansiColor16.toCode(self)),
         Match.tag("Bright", (self) => 90 + ansiColor16.toCode(self)),
         Match.tag("AnsiColor256", (self) => [38, 5, ansiColor256.toCode(self)]),
+        Match.tag("TrueColor", (self) => [38, 2, ...trueColor.toCode(self)]),
         Match.exhaustive
       )),
     Match.tag("Background", (self) =>
@@ -224,6 +226,7 @@ const singleToCode = (self: Style): number | Array<number> =>
         Match.tag("Standard", (self) => 40 + ansiColor16.toCode(self)),
         Match.tag("Bright", (self) => 100 + ansiColor16.toCode(self)),
         Match.tag("AnsiColor256", (self) => [48, 5, ansiColor256.toCode(self)]),
+        Match.tag("TrueColor", (self) => [48, 2, ...trueColor.toCode(self)]),
         Match.exhaustive
       )),
     Match.exhaustive
