@@ -14,7 +14,11 @@
  * well-supported SGR display attributes (with a few exceptions).
  */
 import { Match } from "effect"
+import type { AnsiColor16 } from "../AnsiColor16.js"
+import type { AnsiColor256 } from "../AnsiColor256.js"
 import type * as Color from "../Color.js"
+import * as ansiColor16 from "./ansiColor16.js"
+import * as ansiColor256 from "./ansiColor256.js"
 import * as color from "./color.js"
 
 // -----------------------------------------------------------------------------
@@ -36,8 +40,8 @@ export type Style =
   | Strikethrough
   | Invert
   | SetColor
-// |  Foreground
-//  | Background
+  | Foreground
+  | Background
 
 /**
  * Resets all SGR attributes to their default values.
@@ -91,6 +95,26 @@ export interface SetColor {
 }
 
 /**
+ * Controls the foreground color of the text displayed in the terminal.
+ *
+ * @internal
+ */
+export interface Foreground {
+  readonly _tag: "Foreground"
+  readonly colorSpace: AnsiColor16 | AnsiColor256
+}
+
+/**
+ * Controls the background color of the text displayed in the terminal.
+ *
+ * @internal
+ */
+export interface Background {
+  readonly _tag: "Background"
+  readonly colorSpace: AnsiColor16 | AnsiColor256
+}
+
+/**
  * Controls whether the text displayed in the terminal is italicized.
  *
  * **NOTE**: not widely supported.
@@ -126,6 +150,7 @@ export interface Underline {
 export declare namespace Style {
   /** @internal */
   export type Layer = "foreground" | "background"
+  export type Colors = "AnsiColor16" | "AnsiColor256" | "TrueColor"
 }
 
 // -----------------------------------------------------------------------------
@@ -172,7 +197,7 @@ export const setUnderlined = (underlined: boolean): Style => ({
 // -----------------------------------------------------------------------------
 
 /** @internal */
-const singleToCode = (self: Style): number =>
+const singleToCode = (self: Style): number | Array<number> =>
   Match.value(self).pipe(
     Match.tag("Reset", () => 0),
     Match.tag("Bold", (self) => self.bold ? 1 : 22),
@@ -187,10 +212,31 @@ const singleToCode = (self: Style): number =>
         Match.when("background", () => self.vivid ? 100 + color.toCode(self.color) : 40 + color.toCode(self.color)),
         Match.exhaustive
       )),
+    Match.tag("Foreground", (self) =>
+      Match.value(self.colorSpace).pipe(
+        Match.tag("Standard", (self) => 30 + ansiColor16.toCode(self)),
+        Match.tag("Bright", (self) => 90 + ansiColor16.toCode(self)),
+        Match.tag("AnsiColor256", (self) => [38, 5, ansiColor256.toCode(self)]),
+        Match.exhaustive
+      )),
+    Match.tag("Background", (self) =>
+      Match.value(self.colorSpace).pipe(
+        Match.tag("Standard", (self) => 40 + ansiColor16.toCode(self)),
+        Match.tag("Bright", (self) => 100 + ansiColor16.toCode(self)),
+        Match.tag("AnsiColor256", (self) => [48, 5, ansiColor256.toCode(self)]),
+        Match.exhaustive
+      )),
     Match.exhaustive
   )
 
-const multiToCode = (sgrs: Iterable<Style>): string => Array.from(sgrs).map(singleToCode).join(";")
+// TODO: Maybe something better than this
+const multiToCode = (styles: Iterable<Style>): string =>
+  Array.from(styles).map(
+    (style) => {
+      const s = singleToCode(style)
+      return Array.isArray(s) ? s.join(";") : s
+    }
+  ).join(";")
 
 /** @internal */
-export const toCode = (sgrs: Iterable<Style>): string => multiToCode(sgrs).concat("m")
+export const toCode = (styles: Iterable<Style>): string => multiToCode(styles).concat("m")
